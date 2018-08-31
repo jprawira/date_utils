@@ -1,9 +1,7 @@
-library utils;
-
 import "package:intl/intl.dart";
 
 class Utils {
-  static final DateFormat _monthFormat = new DateFormat("MMMM yyyy");
+  static final DateFormat _monthFormat = new DateFormat("MMMM yyyy", "id");
   static final DateFormat _dayFormat = new DateFormat("dd");
   static final DateFormat _firstDayFormat = new DateFormat("MMM dd");
   static final DateFormat _fullDayFormat = new DateFormat("EEE MMM dd, yyyy");
@@ -16,23 +14,23 @@ class Utils {
   static String apiDayFormat(DateTime d) => _apiDayFormat.format(d);
 
   static const List<String> weekdays = const [
-    "Sun",
-    "Mon",
-    "Tue",
-    "Wed",
-    "Thu",
-    "Fri",
-    "Sat"
+    "SEN",
+    "SEL",
+    "RAB",
+    "KAM",
+    "JUM",
+    "SAB",
+    "MIN"
   ];
 
   /// The list of days in a given month
   static List<DateTime> daysInMonth(DateTime month) {
     var first = firstDayOfMonth(month);
-    var daysBefore = first.weekday;
+    var daysBefore = first.weekday - 1;
     var firstToDisplay = first.subtract(new Duration(days: daysBefore));
-    var last = Utils.lastDayOfMonth(month);
+    var last = lastDayOfMonth(month);
 
-    var daysAfter = 7 - last.weekday;
+    var daysAfter = 8 - last.weekday;
     var lastToDisplay = last.add(new Duration(days: daysAfter));
     return daysInRange(firstToDisplay, lastToDisplay).toList();
   }
@@ -52,12 +50,12 @@ class Utils {
   static DateTime firstDayOfWeek(DateTime day) {
     /// Handle Daylight Savings by setting hour to 12:00 Noon
     /// rather than the default of Midnight
-    day = new DateTime.utc(day.year, day.month, day.day, 12);
+    day = new DateTime.utc(day.year, day.month, day.day, 0);
 
     /// Weekday is on a 1-7 scale Monday - Sunday,
-    /// This Calendar works from Sunday - Monday
-    var decreaseNum = day.weekday % 7;
-    return day.subtract(new Duration(days: decreaseNum));
+    /// This Calendar works from Monday - Sunday
+    var decreaseNum = day.weekday;
+    return day.subtract(new Duration(days: 7 - decreaseNum));
   }
 
   static DateTime lastDayOfWeek(DateTime day) {
@@ -67,8 +65,8 @@ class Utils {
 
     /// Weekday is on a 1-7 scale Monday - Sunday,
     /// This Calendar's Week starts on Sunday
-    var increaseNum = day.weekday % 7;
-    return day.add(new Duration(days: 7 - increaseNum));
+    var increaseNum = day.weekday;
+    return day.add(new Duration(days: increaseNum));
   }
 
   /// The last day of a given month
@@ -115,7 +113,7 @@ class Utils {
 
     var min = a.isBefore(b) ? a : b;
     var max = a.isBefore(b) ? b : a;
-    var result = max.weekday % 7 - min.weekday % 7 >= 0;
+    var result = max.weekday - min.weekday >= 0;
     return result;
   }
 
