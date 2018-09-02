@@ -55,16 +55,16 @@ class Utils {
     /// Weekday is on a 1-7 scale Monday - Sunday,
     /// This Calendar works from Monday - Sunday
     var decreaseNum = day.weekday;
-    return day.subtract(new Duration(days: 7 - decreaseNum));
+    return day.subtract(new Duration(days: decreaseNum));
   }
 
   static DateTime lastDayOfWeek(DateTime day) {
     /// Handle Daylight Savings by setting hour to 12:00 Noon
     /// rather than the default of Midnight
-    day = new DateTime.utc(day.year, day.month, day.day, 12);
+    day = new DateTime.utc(day.year, day.month, day.day, 0);
 
     /// Weekday is on a 1-7 scale Monday - Sunday,
-    /// This Calendar's Week starts on Sunday
+    /// This Calendar's Week starts on Monday
     var increaseNum = day.weekday;
     return day.add(new Duration(days: increaseNum));
   }
@@ -91,6 +91,29 @@ class Utils {
       if (timeZoneDiff.inSeconds != 0) {
         offset = i.timeZoneOffset;
         i = i.subtract(new Duration(seconds: timeZoneDiff.inSeconds));
+      }
+    }
+  }
+
+  /// Returns a [DateTime] for each workday the given range.
+  ///
+  /// [start] inclusive
+  /// [end] exclusive
+  static Iterable<DateTime> workdaysInRange(
+      DateTime start, DateTime end) sync* {
+    var i = start;
+    var offset = start.timeZoneOffset;
+    while (i.isBefore(end)) {
+      if (i.weekday % 6 != 0 && i.weekday % 7 != 0) {
+        yield i;
+        i = i.add(new Duration(days: 1));
+        var timeZoneDiff = i.timeZoneOffset - offset;
+        if (timeZoneDiff.inSeconds != 0) {
+          offset = i.timeZoneOffset;
+          i = i.subtract(new Duration(seconds: timeZoneDiff.inSeconds));
+        }
+      } else {
+        i = i.add(new Duration(days: 1));
       }
     }
   }
